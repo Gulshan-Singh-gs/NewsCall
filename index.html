@@ -314,43 +314,40 @@
             drawVisualizer();
         }
 
-        function drawVisualizer() {
+function drawVisualizer() {
             if (!audio.paused) requestAnimationFrame(drawVisualizer);
             
-            const bufferLength = analyser.frequencyBinCount; // 128
+            const bufferLength = analyser.frequencyBinCount; 
             const dataArray = new Uint8Array(bufferLength);
             analyser.getByteFrequencyData(dataArray);
             
+            // Clear previous frame
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            const width = canvas.width / window.devicePixelRatio;
-            const height = canvas.height / window.devicePixelRatio;
-            
-            // STRETCH LOGIC: 
-            // Most high frequencies (index 80+) are empty in speech.
-            // We only visualize indices 0 to 85 (approx 70% of data).
-            // We map this 70% of data to 100% of the canvas width.
-            const usefulBins = 1000; 
-            const slotWidth = width / usefulBins; 
-            const gap = 2; 
-            const barWidth = Math.max(1, slotWidth - gap);
+            // Only look at the first 50 bins (Speech Frequencies)
+            const usefulBins = 50; 
+            const gap = 3; 
+            // Stretch those 50 bins across the ENTIRE canvas width
+            const barWidth = (canvas.width / usefulBins) - gap;
 
             let x = 0;
 
             for (let i = 0; i < usefulBins; i++) {
-                // Height Calculation
-                const barHeight = (dataArray[i] / 255) * height * 0.9;
+                // Boost the visual height so it looks active
+                const rawValue = dataArray[i];
+                const barHeight = (rawValue / 255) * canvas.height * 0.8;
                 
-                // Cyanic Blue with opacity
-                const opacity = Math.max(0.15, dataArray[i] / 255);
+                // Cyanic Blue with dynamic opacity
+                const opacity = Math.max(0.15, rawValue / 255);
                 ctx.fillStyle = `rgba(0, 229, 255, ${opacity})`;
                 
-                // Draw centered vertically
-                ctx.fillRect(x, (height - barHeight) / 2, barWidth, barHeight);
-                x += slotWidth;
+                // Center vertically
+                const y = (canvas.height - barHeight) / 2;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                x += barWidth + gap;
             }
         }
-
         function toggleAudio() {
             if (!isAudioCtxSetup) setupAudioContext();
             if (audioCtx.state === 'suspended') audioCtx.resume();
