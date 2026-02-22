@@ -57,8 +57,8 @@ async def main():
             "You are the voice of NewsKernal, a futuristic tech news station. "
             "Summarize these 5 stories into a tightly packed 120-second briefing. "
             "Style: Professional, fast-paced, insightful. "
-            "Start with: 'This is NewsKernal. Here is your daily download.' "
-            "End with: 'System update complete. This was NewsKernal.'"
+            "Start with: 'This is NewsKernal.' "
+            "End with: 'This was NewsKernal.'"
             "Do not use emojis or markdown formatting."
         )
         
